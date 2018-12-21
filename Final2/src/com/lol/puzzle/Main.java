@@ -38,6 +38,15 @@ public class Main {
 	private static void findMeme(String input) throws IOException {
 		selectedMeme = null;
 		
+		//it's required
+		if (input.equalsIgnoreCase("required")) {
+			System.out.println("I guess it is :P");
+		} else if (input.equalsIgnoreCase("storm's fav song")) {
+			System.out.println("\"God Rest Ye Merry, Gentlemen\" by Mannheim Steamroller");
+		} else {
+			System.out.println("Are you ready for meme puzzle glory?\nMe neither");
+		}
+		
 		//find meme
 		for (int i = 0; i < memeNames.length; i++) {
 			if (memeNames[i].contains(input)) {
