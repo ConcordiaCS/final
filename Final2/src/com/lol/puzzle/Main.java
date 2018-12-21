@@ -11,8 +11,10 @@ import javax.swing.JOptionPane;
 
 public class Main {
 
+	//title for all windows
 	public static final String TITLE = "MEME PUZZLE 2000";
 	
+	//names of files
 	public static String[] memeNames = {
 			"bald_alex.png",
 			"be_good.jpg",
@@ -27,9 +29,12 @@ public class Main {
 			"whoops_pi.png"
 	};
 	
+	//meme that has been chosen by the user
 	private static BufferedImage selectedMeme;
+	//name of the selected meme
 	private static String name;
 	
+	//find the meme in the meme array
 	private static void findMeme(String input) throws IOException {
 		selectedMeme = null;
 		
@@ -52,24 +57,30 @@ public class Main {
 		}
 	}
 	
+	//resize an image
 	private static BufferedImage resizeImage(int maxWidth, int maxHeight, BufferedImage image) {
+		//getting the original width/height of the image and calculating the aspect ratio
 		int origWidth = image.getWidth();
 		int origHeight = image.getHeight();
 		double aspectRatio = (double) origWidth / origHeight;
 		
+		//new width and height initially are equal to max width and height
 		int newWidth = maxWidth;
 		int newHeight = maxHeight;
 		
+		//resize width if needed
 		if (origWidth > maxWidth) {
 			newWidth = maxWidth;
 			newHeight = (int) (newWidth / aspectRatio);
 		}
 		
+		//resize height if needed
 		if (newHeight > maxHeight) {
 			newHeight = maxHeight;
 			newWidth = (int) (newHeight * aspectRatio);
 		}
 		
+		//draw the image with resized dimensions to a new BufferedImage
 		BufferedImage resized = new BufferedImage(newWidth, newHeight, image.getType());
 		Graphics2D g = resized.createGraphics();
 		
@@ -80,15 +91,18 @@ public class Main {
 	}
 	
 	public static void main(String[] args) throws HeadlessException, IOException {
+		//find the meme and get the size of the puzzle
 		findMeme(JOptionPane.showInputDialog(null, "Search for a meme for your puzzle:", TITLE, JOptionPane.QUESTION_MESSAGE));
 		int size = Integer.parseInt(JOptionPane.showInputDialog(null, "Enter puzzle size:", TITLE, JOptionPane.QUESTION_MESSAGE));
 		
+		//check for logical size
 		if (size <= 1) {
 			while (size <= 1) {
 				size = Integer.parseInt(JOptionPane.showInputDialog(null, "Size can't be one or less! Enter a new size:", TITLE, JOptionPane.QUESTION_MESSAGE));
 			}
 		}
 		
+		//mess with the user a bit if they get annoying
 		int tooBig = 0;
 		String message = "You shouldn't see this.";
 		if (size >= 1000) {
@@ -126,6 +140,7 @@ public class Main {
 			}
 		}
 		
+		//create the puzzle
 		new Puzzle(selectedMeme, name, size);
 	}
 

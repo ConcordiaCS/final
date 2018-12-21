@@ -27,16 +27,20 @@ public class Puzzle extends JFrame {
 
 	private static final long serialVersionUID = 8524463713749297411L;
 	
+	//layout stuff
 	private JPanel panel;
 	private GridLayout grid;
 	
+	//information about the puzzle
 	private BufferedImage meme;
 	private String name;
 	private int size;
 	
+	//lists of buttons in solved and scrambled positions
 	private ArrayList<Button> solution;
 	private ArrayList<Button> scrambled;
 	
+	//time that the puzzle starts
 	private long startTime;
 	
 	public Puzzle(BufferedImage selectedMeme, String name, int size) {
@@ -44,13 +48,16 @@ public class Puzzle extends JFrame {
 		this.name = name;
 		this.size = size;
 		
+		//set up the panel and grid layout for buttons
 		panel = new JPanel();
 		panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 		panel.setLayout(grid = new GridLayout(size, size));
 		add(panel);
 		
+		//initialize array list
 		solution = new ArrayList<>(size * size);
 		
+		//initialize the picture, open the window, and get the starting time
 		initPicture();
 		openWindow();
 		startTime = System.currentTimeMillis();
@@ -63,6 +70,7 @@ public class Puzzle extends JFrame {
 		int width = meme.getWidth();
 		int height = meme.getHeight();
 		
+		//crop the image into size^2 pieces and create buttons for each segment
 		SwapAction action = new SwapAction();
 		for (int i = 0; i < columns; i++) {
 			for (int j = 0; j < rows; j++) {
@@ -74,6 +82,7 @@ public class Puzzle extends JFrame {
 			}
 		}
 		
+		//scramble the puzzle and add the buttons to the GUI
 		scrambled = scramble(solution);
 		scrambled.forEach((b) -> { panel.add(b); });
 	}
@@ -91,10 +100,12 @@ public class Puzzle extends JFrame {
 		Random r = new Random();
 		ArrayList<Button> scr = new ArrayList<>(original.size());
 		
+		//initialize the scrambled array list with null values
 		for (int i = 0; i < original.size(); i++) {
 			scr.add(null);
 		}
 		
+		//for each button in the original list, assign a new, random index and put it in the scrambled list
 		for (Button b : original) {
 			boolean success = false;
 			while (!success) {
@@ -110,31 +121,38 @@ public class Puzzle extends JFrame {
 	
 	private void solved() {
 		this.dispose();
+		//get the finish time in seconds, rounded to two decimal places
 		String finish = new DecimalFormat("#.##").format((System.currentTimeMillis() - startTime) / 1000D);
 		JOptionPane.showMessageDialog(null, "You won! It took you " + finish + " seconds.", Main.TITLE, JOptionPane.INFORMATION_MESSAGE);
+		//check for a high score
 		highScore(finish);
 	}
 	
 	private void highScore(String s) {
+		//get the current score, find the file for this puzzle
 		double score = Double.parseDouble(s);
 		String fileName = name.split("\\.")[0] + "_scores.txt";
 		File file = new File(fileName);
 		
 		try {
+			//create the file if it doesn't already exist
 			file.createNewFile();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		
 		double highScore = 0.0;
+		//message for if we got a high score
 		String message = "You got a HIGH SCORE for size " + size + " of the \"" + name + "\" meme puzzle!\nYour score was " + score + " seconds!";
 		
+		//scan the file and read the current high score
 		ArrayList<String> lines = new ArrayList<>();
 		try (Scanner scan = new Scanner(file)) {
 			while (scan.hasNextLine()) {
 				String line = scan.nextLine();
 				if (line.startsWith(Integer.toString(size))) {
 					highScore = Double.parseDouble(line.split(":")[1]);
+					//if there is a new high score (lower time = better score)
 					if (score < highScore) {
 						JOptionPane.showMessageDialog(null, message, Main.TITLE, JOptionPane.INFORMATION_MESSAGE);
 						line = size + ":" + score;
@@ -144,6 +162,7 @@ public class Puzzle extends JFrame {
 				lines.add(line);
 			}
 			
+			//if no previous high score was found, new high score
 			if (highScore == 0.0) {
 				JOptionPane.showMessageDialog(null, message, Main.TITLE, JOptionPane.INFORMATION_MESSAGE);
 				lines.add(size + ":" + score);
@@ -151,7 +170,8 @@ public class Puzzle extends JFrame {
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
-				
+		
+		//write the new high scores to the file and rewrite the other high scores
 		try (PrintWriter writer = new PrintWriter(fileName)) {
 			for (String line : lines) {
 				writer.println(line);
@@ -163,19 +183,24 @@ public class Puzzle extends JFrame {
 	}
 	
 	private class SwapAction implements ItemListener {
-
 		private Button[] selected = new Button[2];
 		private int index = 0;
 		
 		@Override
 		public void itemStateChanged(ItemEvent e) {
+			//if a button was selected
 			if (e.getStateChange() == ItemEvent.SELECTED) {
+				//get button
 				selected[index] = (Button) e.getItem();
 				index++;
+				//if two buttons are selected
 				if (index >= 2) {
 					index = 0;
+					//swap the buttons
 					swapButtons(selected[0], selected[1]);
+					//check if the puzzle is solved
 					if (checkSolution()) {
+						//if puzzle is solved, end program
 						solved();
 					}
 				}
@@ -183,14 +208,17 @@ public class Puzzle extends JFrame {
 		}
 		
 		private void swapButtons(Button b1, Button b2) {
+			//actually swap the buttons in the list
 			Collections.swap(scrambled, scrambled.indexOf(b1), scrambled.indexOf(b2));
 			
+			//ensure that no button is selected
 			scrambled.forEach((b) -> { 
 				if (b.isSelected()) {
 					b.setSelected(false);
 				}
 			});
 			
+			//update the gui
 			panel.removeAll();
 			for (Button b : scrambled) {
 				panel.add(b);
@@ -201,6 +229,7 @@ public class Puzzle extends JFrame {
 		private boolean checkSolution() {
 			boolean solved = true;
 			for (Button b : solution) {
+				//if all buttons in scrambled are in the same position as in solution
 				solved &= (scrambled.get(solution.indexOf(b)).equals(b));
 			}
 			return solved;

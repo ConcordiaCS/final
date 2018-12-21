@@ -12,6 +12,8 @@ public class Button extends JToggleButton {
 
 	public Button(ImageIcon image) {
 		super(image);
+		
+		//add borders based on selection state
 		this.setBorder(BorderFactory.createLineBorder(Color.GRAY, 1));
 		this.addItemListener((e) -> {
 			Button b = (Button) e.getItem();
