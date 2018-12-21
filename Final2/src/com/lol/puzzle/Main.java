@@ -11,7 +11,7 @@ import javax.swing.JOptionPane;
 
 public class Main {
 
-	public static final String TITLE = "MEME CHOOSER 2000";
+	public static final String TITLE = "MEME PUZZLE 2000";
 	
 	public static String[] memeNames = {
 			"bald_alex.png",
@@ -28,6 +28,7 @@ public class Main {
 	};
 	
 	private static BufferedImage selectedMeme;
+	private static String name;
 	
 	private static void findMeme(String input) throws IOException {
 		selectedMeme = null;
@@ -36,14 +37,16 @@ public class Main {
 		for (int i = 0; i < memeNames.length; i++) {
 			if (memeNames[i].contains(input)) {
 				selectedMeme = ImageIO.read(new File("src/" + memeNames[i]));
+				name = memeNames[i];
 			}
 		}
 		
 		//if no meme is found, repeat search with different input
 		if (selectedMeme == null) {
-			findMeme(JOptionPane.showInputDialog(null, "\"" + input + "\" returned no results. Please choose another meme:", "MEME CHOOSER 2000", JOptionPane.QUESTION_MESSAGE));
+			findMeme(JOptionPane.showInputDialog(null, "\"" + input + "\" returned no results. Please choose another meme:", TITLE, JOptionPane.QUESTION_MESSAGE));
 		}
 		
+		//resize to max of 800 by 450
 		if (selectedMeme.getWidth() > 800 || selectedMeme.getHeight() > 450) {
 			selectedMeme = resizeImage(800, 450, selectedMeme);
 		}
@@ -77,14 +80,53 @@ public class Main {
 	}
 	
 	public static void main(String[] args) throws HeadlessException, IOException {
-		//char flag = 'y';
-		//do {
-			findMeme(JOptionPane.showInputDialog(null, "Search for a meme for your puzzle:", TITLE, JOptionPane.QUESTION_MESSAGE));
-			int size = Integer.parseInt(JOptionPane.showInputDialog(null, "Enter puzzle size:", TITLE, JOptionPane.QUESTION_MESSAGE));
-			new Puzzle(selectedMeme, size);
-			//JOptionPane.showMessageDialog(null, "Your meme:", "MEME CHOOSER 2000", JOptionPane.PLAIN_MESSAGE, selectedMeme);
-		//	flag = JOptionPane.showInputDialog("Would you like to see another meme? (Y/N)").trim().toLowerCase().charAt(0);
-		//} while (flag != 'n');
+		findMeme(JOptionPane.showInputDialog(null, "Search for a meme for your puzzle:", TITLE, JOptionPane.QUESTION_MESSAGE));
+		int size = Integer.parseInt(JOptionPane.showInputDialog(null, "Enter puzzle size:", TITLE, JOptionPane.QUESTION_MESSAGE));
+		
+		if (size <= 1) {
+			while (size <= 1) {
+				size = Integer.parseInt(JOptionPane.showInputDialog(null, "Size can't be one or less! Enter a new size:", TITLE, JOptionPane.QUESTION_MESSAGE));
+			}
+		}
+		
+		int tooBig = 0;
+		String message = "You shouldn't see this.";
+		if (size >= 1000) {
+			while (size >= 1000) {
+				tooBig++;
+				switch (tooBig) {
+				
+				case 1:
+					message = "Maybe you shouldn't do that... Enter a new size:";
+					break;
+					
+				case 2:
+					message = "You probably shouldn't do that... Enter a new size:";
+					break;
+					
+				case 3:
+					message = "You definitely don't want to do that... Enter a new size:";
+					break;
+					
+				case 4:
+					message = "DON'T DO IT. STOP. NOW. Enter a new size:";
+					break;
+					
+				case 5:
+					JOptionPane.showMessageDialog(null, "You are no longer able to play this game.\n"
+							+ "It's not funny. You actually can't. You definitely cannot simply reopen the app. It won't work.\n"
+							+ "Don't even try it.\n"
+							+ "In order to reactivate this game, you must pay the developer $1,000,000. Have a nice day...\n\n\n"
+							+ "...I know I will.", TITLE, JOptionPane.ERROR_MESSAGE);
+					System.exit(0);
+					break;
+				
+				}
+				size = Integer.parseInt(JOptionPane.showInputDialog(null, message, TITLE, JOptionPane.QUESTION_MESSAGE));
+			}
+		}
+		
+		new Puzzle(selectedMeme, name, size);
 	}
 
 }

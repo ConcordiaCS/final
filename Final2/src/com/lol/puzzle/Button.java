@@ -1,8 +1,6 @@
 package com.lol.puzzle;
 
 import java.awt.Color;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -15,14 +13,14 @@ public class Button extends JToggleButton {
 	public Button(ImageIcon image) {
 		super(image);
 		this.setBorder(BorderFactory.createLineBorder(Color.GRAY, 1));
-		this.addItemListener(new ItemListener() {
-			@Override
-			public void itemStateChanged(ItemEvent e) {
-				if (e.getStateChange() == ItemEvent.SELECTED) {
-					
-				}
+		this.addItemListener((e) -> {
+			Button b = (Button) e.getItem();
+			if (b.isSelected()) {
+				b.setBorder(BorderFactory.createLineBorder(Color.YELLOW, 2));
+			} else {
+				b.setBorder(BorderFactory.createLineBorder(Color.GRAY, 1));
 			}
-		}); 
+		});
 	}
 	
 }
